@@ -25,6 +25,7 @@ def register_view(request):
         else:
             print("Form is not valid.")  # デバッグメッセージ
             print(form.errors)  # フォームのエラー内容を表示
+            return render(request, 'register.html', {'form': form, 'errors': form.errors})  # form.errorsをテンプレートに渡す
     else:
         form = CustomUserCreationForm()
     return render(request, 'register.html', {'form': form})
