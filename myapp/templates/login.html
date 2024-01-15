@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ログイン - SupporTOYO</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@latest/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@latest/font/bootstrap-icons.css">
+    <script src="https://code.jquery.com/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- あなたのスタイル -->
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            text-align: center;
+            animation: backgroundAnimation 30s linear infinite
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            z-index: -1
+        }
+
+        @keyframes backgroundAnimation {
+            0% {
+                background-image: url('https://t4.ftcdn.net/jpg/02/24/63/49/240_F_224634909_OL8t2rMHcFGqh3Fy15UzNUJKZd1j5cAK.jpg');
+            }
+
+            25% {
+                background-image: url('https://t3.ftcdn.net/jpg/05/46/48/64/240_F_546486456_DuVSnZTBAh0iUgaufeZdyXZBYFm8pibt.jpg');
+            }
+
+            50% {
+                background-image: url('https://t4.ftcdn.net/jpg/01/32/28/67/240_F_132286775_9Hh4pl1us6dqPFkWGUAoMur2qlKhud6t.jpg');
+            }
+
+            100% {
+                background-image: url('https://t4.ftcdn.net/jpg/01/44/42/91/240_F_144429143_QRQXzbKvKZrAkFs7VYpSRQxLSoxTXCJo.jpg');
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            a:hover {
+                color: #bfaf53 !important;
+                transition: .2s !important
+            }
+
+            p {
+                color: #ccc !important
+            }
+
+            .card {
+                background-color: #17194c;
+                color: #fff !important
+            }
+        }
+
+        a:hover {
+            text-decoration: none;
+            color: #bfaf53;
+            transition: .2s
+        }
+
+        p {
+            color: #000
+        }
+
+        .btn-primary {
+            width: 100%
+        }
+
+        .card {
+            color: #17194c;
+            width: 60vw;
+            padding: 20px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%)
+        }
+
+        footer {
+            background: linear-gradient(to bottom, transparent, #fff);
+            color: #aaa
+        }
+
+        footer a {
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <form id="myform" class="card" data-url="{% url 'login' %}">
+        {% csrf_token %}
+        <div class="mb-4">
+            <h1 class="display-4">SupporTOYO</h1>
+            <p id="greet"></p>
+        </div>
+        <div class="input-group mb-3">
+            <input type="text" id="userid" class="form-control" placeholder="ユーザー名" required>
+            <span class="input-group-text">@iniad.org</span>
+        </div>
+        <div class="input-group mb-3">
+            <input type="password" id="userpw" class="form-control" placeholder="パスワード" required>
+        </div>
+        {% if error %}
+        <p>{{ error }}</p>
+        {% endif %}
+        <div>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-box-arrow-in-right"></i> ログイン</button>
+        </div>
+    </form>
+    <footer class="fixed-bottom">
+        <small>
+            Feedback:
+            <a href="https://forms.gle/MeBYi5bX7DiAXsjL7" class="bi bi-google" target="_blank"></a>
+            <a href="https://www.instagram.com/llionstagram/" class="bi bi-instagram" target="_blank"></a>
+            <a href="https://twitter.com/lliooooon" class="bi bi-twitter-x" target="_blank"></a>
+        </small>
+    </footer>
+    <script>
+        // ユーザー名をlocalStorageから読み出す
+        document.getElementById('userid').value = localStorage.getItem('userid');
+
+        document.getElementById('myform').addEventListener('submit', function (e) {
+            e.preventDefault();
+            let username = document.getElementById('userid').value;
+            const password = document.getElementById('userpw').value;
+
+            // ユーザーネームに@iniad.orgを追加
+            username = username + "@iniad.org";
+
+            // ユーザー名をlocalStorageに保存する
+            localStorage.setItem('userid', username);
+
+            const url = this.dataset.url;
+
+            // Ajaxを使用してフォームのデータを非同期に送信
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: {
+                    username: username,
+                    password: password,
+                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(response) {
+                    // サーバーからのレスポンスに基づいてリダイレクト
+                    if (response.authenticated) {
+                        location.href = response.redirect_url;
+                    } else {
+                        alert('Invalid username or password.');
+                    }
+                }
+            });
+        });
+        const greetings = ["おはようございます", "こんにちは", "こんばんは"];
+        const greet = greetings[Math.floor((new Date().getHours() - 4) / 7)];
+        document.getElementById("greet").textContent = greet;
+    </script>
+</body>
+</html>
